@@ -29,7 +29,18 @@ outPath,outName = os.path.split(outputFC)
 arcpy.CreateFeatureclass_management(outPath,outName,"POINT","","","",outputSR)
     # same thing as arcpy.management.CreateFeatureclass()
 
-# Remember single/double quotes don't matter here as long as consistent within line
+
+#%% 1d. Adding attributes to newly created output
+# Add TagID, LC, IQ, and Date fields to the output feature class
+arcpy.management.AddField(outputFC,"TagID","LONG")
+arcpy.management.AddField(outputFC,"LC","TEXT")
+arcpy.management.AddField(outputFC,"Date","DATE")
+
+
+
+
+
+
 #%%
 # Construct a while loop to iterate through all lines in the datafile
 # Open the ARGOS data file for reading
