@@ -12,12 +12,22 @@
 
 #%% Import modules
 import sys, os, arcpy
+arcpy.env.overwriteOutput = True
 
 #%% Set input variables (Hard-wired)
 inputFile = 'V:/ARGOSTracking/Data/ARGOSData/1997dg.txt'
 outputFC = "V:/ARGOSTracking/Scratch/ARGOStrack.shp"
 # Note we are using forward slashes because they work for paths 
 # without incurring the magicness of backward slashes
+outputSR = arcpy.SpatialReference(54002)
+
+
+## Prepare a new feature class to which we'll add tracking points
+# Create an empty feature class; requires the path and name as separate parameters
+outPath,outName = os.path.split(outputFC) 
+    # os.path.split does exactly what we need - splitting string to path and name
+arcpy.CreateFeatureclass_management(outPath,outName,"POINT","","","",outputSR)
+    # same thing as arcpy.management.CreateFeatureclass()
 
 # Remember single/double quotes don't matter here as long as consistent within line
 #%%
