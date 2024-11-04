@@ -38,7 +38,12 @@ arcpy.management.AddField(outputFC,"Date","DATE")
 
 
 
-
+#%%
+# Create the insert cursor
+cur = arcpy.da.InsertCursor(outputFC,['Shape@','TagID','LC','Date'])
+    # when we add a row, can access records in the specified order here
+    # creating a cursor places a lock on the schema so you can't overwrite or edit the file
+    # this is why we want to delete cursor after done
 
 
 #%%
@@ -62,6 +67,9 @@ while lineString:
         
         # Extract attributes from the datum header line
         tagID = lineData[0]
+        obsDate = lineData[3]
+        obsTime = lineData[4]
+        obsLC = lineData[7]
         
         # Extract location info from the next line
         line2String = inputFileObj.readline()
@@ -94,6 +102,17 @@ while lineString:
             obsPoint.X = obsLon
             obsPoint.Y = obsLat
 
+            # Convert the point to a point geometry object with spatial reference
+            inputSR = arcpy.SpatialReference(4326)
+            obsPointGeom = arcpy.PointGeometry(obsPoint,inputSR)
+
+            # Create a feature object
+            feature = cur.insertRow((obsPointGeom,tagID,obsLC,obsDate.replace(".","/") 
+                                     + " " + obsTime))
+                # we use obsPointGeom with spatial reference instead of just obsPoint
+                # We are listing records in the order we read the feature class row 
+                # in for the insertcursor, so obsPoint will go in the first space 'Shape@'
+
         #Handle any error - skips problematic records and moves on
         except Exception as e:
             print(f"Error adding record {tagID} to the output: {e}")
@@ -103,4 +122,9 @@ while lineString:
     
 #Close the file object
 inputFileObj.close()
+
+# %%
+#Delete the cursor object
+del cur
+
 # %%
